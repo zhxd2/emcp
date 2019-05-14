@@ -1,0 +1,5 @@
+database	number	percentage
+EggNOG	36,890	81.77%
+GO	21,359	47.34%
+COG/KOG	36,890	81.77%
+KEGG Pathway	12,055	26.72%
