@@ -21,7 +21,7 @@ install.packages("org.My.eg.db", repos = NULL, lib = "R_library")
 library("org.My.eg.db", character.only = TRUE, lib.loc = "R_library")
 
 annoStat <- function() {
-  all_gene <- getName.list(read.fasta(file = "../../1.RNASeq-ref/ref/GDDH13_1-1_prot.fasta", 
+  all_gene <- getName.list(read.fasta(file = argv$fasta, 
                          seqtype = 'AA'))
   
   load("gene_annotation.RData")
