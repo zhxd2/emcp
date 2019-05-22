@@ -24,7 +24,7 @@ library(pathview)
 #install.packages("org.My.eg.db", repos = NULL, lib = "R_library")
 
 library(org.My.eg.db, lib.loc = "R_library")
-
+select(org.My.eg.db, keys = head(keys(org.My.eg.db), n = 2), columns = c('GID', 'GO', 'COG', 'Ko', 'Pathway', 'GENENAME'))
 
 # load gene list or de_result ---------------------------------------------
 de_result <- read.delim(argv$de_result)

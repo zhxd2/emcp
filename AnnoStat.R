@@ -11,6 +11,13 @@ p <- add_argument(p, "fasta", help="fasta file, used to get sequence name and nu
 argv <- parse_args(p)
 script_dir <- dirname(strsplit(commandArgs(trailingOnly = FALSE)[4],"=")[[1]][2])
 
+# test --------------------------------------------------------------------
+
+# setwd("/home/zhxd/software/emcp/example_data")
+# argv <- list()
+# argv$fasta <- "GDDH13_1-1_prot.fasta"
+# script_dir <- "/home/zhxd/software/emcp"
+
 # function:make OrgDB -----------------------------------------------------
 library(tidyverse)
 library(clusterProfiler)
@@ -25,6 +32,21 @@ annoStat <- function() {
                          seqtype = 'AA'))
   
   load("gene_annotation.RData")
+  
+  # number and percentage ---------------------------------------------------
+  total_gene = length(all_gene)
+  eggnog_anno = length(gene_info$GID)
+  go_anno = length(unique(gene2go$GID))
+  cog_anno = length(unique(gene2cog$GID))
+  pathway_anno = length(unique(gene2pathway$GID))
+  
+  anno_stat <- tibble(
+    database = c("EggNOG", "GO", "COG/KOG", "KEGG Pathway"),
+    number = comma(c(eggnog_anno, go_anno, cog_anno, pathway_anno), digits = 0),
+    percentage = percent(c(eggnog_anno, go_anno, cog_anno, pathway_anno)/total_gene)
+  )
+  
+  write.table(anno_stat, "anno_stat.txt", quote = F, row.names = F, sep = "\t")
   
   # GO statistics and plot --------------------------------------------------
   
@@ -75,16 +97,24 @@ annoStat <- function() {
   
   
   # Pathway statistics and plot ---------------------------------------------
-  write.table(gene2pathway, file = "pathway.txt", sep = "\t", quote = F, row.names = F)
+  pathway_stat <- dplyr::select(gene2pathway, GID, Pathway_Class, Pathway_Subclass) %>% 
+    distinct() %>% 
+    group_by(Pathway_Class, Pathway_Subclass) %>%
+    summarise(Count = n(), Percentage = percent(n()/pathway_anno))
   
-  p <- gene2pathway %>% dplyr::select(GID, Pathway_Class) %>% distinct() %>%
-    ggplot(aes(x = Pathway_Class)) +
-    geom_bar(aes(fill = Pathway_Class)) +
-    labs(title = "KEGG pathway classification", y = "Number of genes") +
-    theme_classic() +
-    theme(legend.position = "none") +
-    coord_flip()
+  pathway_stat$Pathway_Subclass <- ordered(pathway_stat$Pathway_Subclass, levels = pathway_stat$Pathway_Subclass) 
+  
+  ggplot(pathway_stat, aes(x = Pathway_Subclass, y = Percentage)) +
+    geom_bar(aes(fill = Pathway_Class), stat = 'identity') +
+    geom_text(aes(label = Count), nudge_y = 0.005) +
+    scale_y_continuous(labels=percent) + 
+    labs(y = "Percent of genes(%)", x ="", fill = "Class") +
+    coord_flip() +
+    theme_classic()
+
   ggsave("pathway.pdf", p, width = 20, height = 7)
+  write.table(gene2pathway, file = "pathway.txt", sep = "\t", quote = F)
+  write.table(pathway_stat, file = "pathway_stat.txt", sep = "\t", quote = F, row.names = F)
   
   
   # COG statistics and plot -------------------------------------------------
@@ -105,22 +135,7 @@ annoStat <- function() {
           legend.text = element_text(size = 7.5)) +
     guides(fill=guide_legend(ncol=1))
   ggsave("cog.pdf", p, width = 16, height = 7)
-  
-  
-  # number and percentage ---------------------------------------------------
-  total_gene = length(all_gene)
-  eggnog_anno = length(gene_info$GID)
-  go_anno = length(unique(gene2go$GID))
-  cog_anno = length(unique(gene2cog$GID))
-  pathway_anno = length(unique(gene2pathway$GID))
-  
-  anno_stat <- tibble(
-    database = c("EggNOG", "GO", "COG/KOG", "KEGG Pathway"),
-    number = comma(c(eggnog_anno, go_anno, cog_anno, pathway_anno), digits = 0),
-    percentage = percent(c(eggnog_anno, go_anno, cog_anno, pathway_anno)/total_gene)
-  )
-  
-  write.table(anno_stat, "anno_stat.txt", quote = F, row.names = F, sep = "\t")
+
 }
 
 annoStat()

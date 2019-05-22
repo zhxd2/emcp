@@ -19,7 +19,7 @@ update_kegg <- function(json = "ko00001.json") {
         if(str_detect(pathway_info, "PATH:ko[0-9]{5}")){
           pathway_id <- str_match(pathway_info, "ko[0-9]{5}")[1]
           pathway_name <- str_replace(pathway_info, " \\[PATH:ko[0-9]{5}\\]", "") %>% str_replace("[0-9]{5} ", "")
-          pathway2name <- rbind(pathway2name, tibble(Pathway = pathway_id, Pathway_Name = pathway_name, Pathway_Class = str_sub(A,7)))
+          pathway2name <- rbind(pathway2name, tibble(Pathway = pathway_id, Pathway_Name = pathway_name, Pathway_Class = str_sub(A,7), Pathway_Subclass = str_sub(B, 7)))
           
           kos_info <- kegg[["children"]][["children"]][[a]][["children"]][[b]][["children"]][[c]][["name"]]
           

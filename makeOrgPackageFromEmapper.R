@@ -35,16 +35,16 @@ makeOrgPackageFromEmapper <- function(f_emapper_anno,
                                       genus = "default", 
                                       species = "default") {
   # test
-  # setwd("/home/zhxd/workspace/02.RNA-seq/5.Enrichment/apple")
-  # f_emapper_anno <- "my.emapper.annotations.clean"
+  # setwd("/home/zhxd/software/emcp/example_data")
+  # f_emapper_anno <- "my.emapper.annotations"
   # author <- "zxd"
   # tax_id = "0"
   # genus = "default"
   # species = "default"
-  # script_dir <- "/home/zhxd/workspace/02.RNA-seq/tools/emcp"
+  # script_dir <- "/home/zhxd/software/emcp"
   
   # read emapper result
-  emapper <- read_delim("/home/zhxd/workspace/02.RNA-seq/4.Enrichment/apple/my.emapper.annotations",
+  emapper <- read_delim(f_emapper_anno,
                         "\t", 
                         escape_double = FALSE, 
                         trim_ws = TRUE,
@@ -98,7 +98,7 @@ makeOrgPackageFromEmapper <- function(f_emapper_anno,
   load(file = paste(script_dir, "kegg_info.RData", sep = "/"))
   gene2pathway <- gene2ko %>% left_join(ko2pathway, by = "Ko") %>%
     left_join(pathway2name, by = "Pathway") %>%
-    dplyr::select(GID, Pathway, Pathway_Name, Pathway_Class) %>%
+    dplyr::select(GID, Ko, Pathway, Pathway_Name, Pathway_Class, Pathway_Subclass) %>%
     distinct() %>%
     na.omit()
   
@@ -129,7 +129,7 @@ makeOrgPackageFromEmapper <- function(f_emapper_anno,
   # make OrgDb --------------------------------------------------------------
   makeOrgPackage(gene_info=gene_info,
                  go=gene2go,
-                 ko=gene2ko,
+                 #ko=gene2ko,
                  pathway=gene2pathway,
                  cog=gene2cog,
                  maintainer=author,
@@ -155,3 +155,5 @@ dir.create("R_library")
 install.packages(my_orgdb, repos = NULL, lib = "R_library")
 
 library(my_orgdb, character.only = TRUE, lib.loc = "R_library")
+
+select(org.My.eg.db, keys = head(keys(org.My.eg.db), n = 2), columns = c('GID', 'GO', 'COG', 'Ko', 'Pathway', 'GENENAME'))
