@@ -14,11 +14,24 @@ argv <- parse_args(p)
 out_prefix <- argv$de_result
 
 script_dir <- dirname(strsplit(commandArgs(trailingOnly = FALSE)[4],"=")[[1]][2])
+
+
+# test --------------------------------------------------------------------
+
+# setwd("/home/zhxd/software/emcp/example_data")
+# argv <- list()
+# argv$de_result <- "genes.counts.matrix.BLO_S1_vs_BLO_S4.DESeq2.DE_results"
+# argv$de_log2FoldChange <- 1
+# argv$de_padj <- 0.05
+# out_prefix <- argv$de_result
+# script_dir <- "/home/zhxd/software/emcp/"
+
 # load library ------------------------------------------------------------
 library(tidyverse)
 library(clusterProfiler)
 library(DOSE)
 library(pathview)
+library(enrichplot)
 
 #dir.create("R_library", recursive = TRUE)
 #install.packages("org.My.eg.db", repos = NULL, lib = "R_library")
@@ -28,7 +41,7 @@ select(org.My.eg.db, keys = head(keys(org.My.eg.db), n = 2), columns = c('GID', 
 
 # load gene list or de_result ---------------------------------------------
 de_result <- read.delim(argv$de_result)
-geneList <- de_result$log2FoldChange
+geneList <- sort(de_result$log2FoldChange, decreasing = T)
 names(geneList) <- rownames(de_result)
 
 
@@ -40,12 +53,11 @@ deg <- as.character(de_result_filter$GID)
 
 # do GO enrich -------------------------------------------------------------
 ego <- enrichGO(gene          = deg,
-                keyType       = "GID",
                 OrgDb         = org.My.eg.db,
-                ont           = "CC",
-                pvalueCutoff  = 1,
-                qvalueCutoff  = 1,
-                pAdjustMethod = "BH",
+                keyType       = "GID",
+                ont           = "ALL",
+                pvalueCutoff  = 0.05,
+                qvalueCutoff  = 0.05,
                 readable      = FALSE)
 
 ego_results<-as.data.frame(ego)
@@ -53,21 +65,21 @@ write.table(ego_results, file = paste(out_prefix, "ego_results.txt", sep = "."),
             quote = F, sep = "\t")
 
 pdf(file = paste(out_prefix, "ego_barplot.pdf", sep = "."))
-barplot(ego, showCategory=20, x = "GeneRatio")
+barplot(ego, split="ONTOLOGY") + 
+  facet_grid(ONTOLOGY~., scale="free")
+
 dev.off()
 
 pdf(file = paste(out_prefix, "ego_dotplot.pdf", sep = "."))
-dotplot(ego)
+dotplot(ego, split="ONTOLOGY") + 
+  facet_grid(ONTOLOGY~., scale="free")
 dev.off()
 
-pdf(file = paste(out_prefix, "ego_emapplot.pdf", sep = "."))
-emapplot(ego)
-dev.off()
+#cnetplot(ego, foldChange=geneList, showCategory = 3)
 
-pdf(file = paste(out_prefix, "ego_goplot.pdf", sep = "."))
-goplot(ego)
-dev.off()
+#heatplot(ego, foldChange=geneList)
 
+#emapplot(ego)
 
 # Do Pathway enrich ------------------------------------------------------
 pathway2gene <- select(org.My.eg.db, keys = keys(org.My.eg.db), columns = c("Pathway")) %>%
@@ -79,10 +91,8 @@ load(paste(script_dir, "kegg_info.RData", sep = "/"))
 ekp <- enricher(deg, 
                 TERM2GENE = pathway2gene, 
                 TERM2NAME = pathway2name, 
-                pvalueCutoff = 1, 
-                qvalueCutoff = 1,
-                pAdjustMethod = "BH",
-                minGSSize = 1)
+                pvalueCutoff = 0.05, 
+                qvalueCutoff = 0.05)
 
 ekp_results <- as.data.frame(ekp)
 write.table(ekp_results, file = paste(out_prefix, "ekp_results.txt", sep = "."),
