@@ -69,7 +69,7 @@ makeOrgPackageFromEmapper <- function(f_emapper_anno,
     the_gid <- gos[row, "query_name"][[1]]
     the_gos <- str_split(gos[row,"GO_terms"], ",", simplify = FALSE)[[1]]
     
-    df_temp[[row]] <- data_frame(GID = rep(the_gid, length(the_gos)),
+    df_temp[[row]] <- tibble(GID = rep(the_gid, length(the_gos)),
                                  GO = the_gos,
                                  EVIDENCE = rep("IEA", length(the_gos)))
   }
