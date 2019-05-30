@@ -126,3 +126,5 @@ pathview(gene.data  = gene.ko,
                       pathway.id = sig.pathway,
                       species    = "ko")
 setwd(work_dir)
+
+save.image(file = paste(out_prefix, "enrich.RData", sep = "_"))
