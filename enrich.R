@@ -113,16 +113,16 @@ dev.off()
 
 # pathway view ------------------------------------------------------------
 
-# id.map <- select(org.My.eg.db, keys = names(geneList), columns = "Ko")
-# gene.ko <- mol.sum(mol.data = geneList, id.map = id.map)
-# 
-# sig.pathway <- as.character(filter(ekp_results, p.adjust < 0.05)$ID)
-# 
-# work_dir <- getwd()
-# pathview_dir <- paste(out_prefix, 'pathwiew', sep = "_")
-# dir.create(pathview_dir, recursive=T)
-# setwd(pathview_dir)
-# pathview(gene.data  = gene.ko,
-#                      pathway.id = sig.pathway,
-#                      species    = "ko")
-# setwd(work_dir)
+id.map <- select(org.My.eg.db, keys = names(geneList), columns = "Ko")
+gene.ko <- mol.sum(mol.data = geneList, id.map = id.map)
+ 
+sig.pathway <- as.character(filter(ekp_results, p.adjust < 0.05)$ID)
+ 
+work_dir <- getwd()
+pathview_dir <- paste(out_prefix, 'pathwiew', sep = "_")
+dir.create(pathview_dir, recursive=T)
+setwd(pathview_dir)
+pathview(gene.data  = gene.ko,
+                      pathway.id = sig.pathway,
+                      species    = "ko")
+setwd(work_dir)

@@ -104,7 +104,7 @@ annoStat <- function() {
   
   pathway_stat$Pathway_Subclass <- ordered(pathway_stat$Pathway_Subclass, levels = pathway_stat$Pathway_Subclass) 
   
-  ggplot(pathway_stat, aes(x = Pathway_Subclass, y = Percentage)) +
+  p <- ggplot(pathway_stat, aes(x = Pathway_Subclass, y = Percentage)) +
     geom_bar(aes(fill = Pathway_Class), stat = 'identity') +
     geom_text(aes(label = Count), nudge_y = 0.005) +
     scale_y_continuous(labels=percent) + 
