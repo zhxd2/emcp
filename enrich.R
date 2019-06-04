@@ -8,6 +8,8 @@ p <- arg_parser("do GO enrichment")
 p <- add_argument(p, "--de_result", help="input de_result file, from run_DE_analysis.pl", type="character")
 p <- add_argument(p, "--de_log2FoldChange", help="log2FoldChange cutoff", type="numeric", default = 1)
 p <- add_argument(p, "--de_padj", help="adjust pvalue cutoff", type="numeric", default = 0.05)
+p <- add_argument(p, "--enrich_pvalue", help="pvalue cutoff for enrichment", type="numeric", default = 0.05)
+p <- add_argument(p, "--enrich_qvalue", help="pvalue cutoff for enrichment", type="numeric", default = 0.05)
 
 # Parse the command line arguments
 argv <- parse_args(p)
@@ -56,8 +58,8 @@ ego <- enrichGO(gene          = deg,
                 OrgDb         = org.My.eg.db,
                 keyType       = "GID",
                 ont           = "ALL",
-                pvalueCutoff  = 0.05,
-                qvalueCutoff  = 0.05,
+                pvalueCutoff  = argv$enrich_pvalue,
+                qvalueCutoff  = argv$enrich_qvalue,
                 readable      = FALSE)
 
 ego_results<-as.data.frame(ego)
@@ -91,8 +93,8 @@ load(paste(script_dir, "kegg_info.RData", sep = "/"))
 ekp <- enricher(deg, 
                 TERM2GENE = pathway2gene, 
                 TERM2NAME = pathway2name, 
-                pvalueCutoff = 0.05, 
-                qvalueCutoff = 0.05)
+                pvalueCutoff = argv$enrich_pvalue, 
+                qvalueCutoff = argv$enrich_qvalue)
 
 ekp_results <- as.data.frame(ekp)
 write.table(ekp_results, file = paste(out_prefix, "ekp_results.txt", sep = "."),
