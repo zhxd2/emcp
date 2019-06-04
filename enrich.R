@@ -63,23 +63,23 @@ ego <- enrichGO(gene          = deg,
 ego_results<-as.data.frame(ego)
 write.table(ego_results, file = paste(out_prefix, "ego_results.txt", sep = "."),
             quote = F, sep = "\t")
+if(nrow(ego_results) > 5){
+	pdf(file = paste(out_prefix, "ego_barplot.pdf", sep = "."))
+	barplot(ego, showCategory=20, split="ONTOLOGY") + 
+  		facet_grid(ONTOLOGY~., scale="free")
+	dev.off()
 
-pdf(file = paste(out_prefix, "ego_barplot.pdf", sep = "."))
-barplot(ego, split="ONTOLOGY") + 
-  facet_grid(ONTOLOGY~., scale="free")
+	pdf(file = paste(out_prefix, "ego_dotplot.pdf", sep = "."))
+	dotplot(ego, showCategory=20, split="ONTOLOGY") + 
+  		facet_grid(ONTOLOGY~., scale="free")
+	dev.off()
 
-dev.off()
+	#cnetplot(ego, foldChange=geneList, showCategory = 3)
 
-pdf(file = paste(out_prefix, "ego_dotplot.pdf", sep = "."))
-dotplot(ego, split="ONTOLOGY") + 
-  facet_grid(ONTOLOGY~., scale="free")
-dev.off()
+	#heatplot(ego, foldChange=geneList)
 
-#cnetplot(ego, foldChange=geneList, showCategory = 3)
-
-#heatplot(ego, foldChange=geneList)
-
-#emapplot(ego)
+	#emapplot(ego)
+}
 
 # Do Pathway enrich ------------------------------------------------------
 pathway2gene <- select(org.My.eg.db, keys = keys(org.My.eg.db), columns = c("Pathway")) %>%
@@ -98,18 +98,19 @@ ekp_results <- as.data.frame(ekp)
 write.table(ekp_results, file = paste(out_prefix, "ekp_results.txt", sep = "."),
             quote = F, sep = "\t")
 
-pdf(file = paste(out_prefix, "ekp_barplot.pdf", sep = "."))
-barplot(ekp, showCategory=20, x = "GeneRatio")
-dev.off()
+if(nrow(ekp_results) > 5){
+	pdf(file = paste(out_prefix, "ekp_barplot.pdf", sep = "."))
+	barplot(ekp, showCategory=20, x = "GeneRatio")
+	dev.off()
 
-pdf(file = paste(out_prefix, "ekp_dotplot.pdf", sep = "."))
-dotplot(ekp)
-dev.off()
+	pdf(file = paste(out_prefix, "ekp_dotplot.pdf", sep = "."))
+	dotplot(ekp)
+	dev.off()
 
-pdf(file = paste(out_prefix, "ekp_emapplot.pdf", sep = "."))
-emapplot(ekp)
-dev.off()
-
+	pdf(file = paste(out_prefix, "ekp_emapplot.pdf", sep = "."))
+	emapplot(ekp)
+	dev.off()
+}
 
 # pathway view ------------------------------------------------------------
 
@@ -126,5 +127,3 @@ pathview(gene.data  = gene.ko,
                       pathway.id = sig.pathway,
                       species    = "ko")
 setwd(work_dir)
-
-save.image(file = paste(out_prefix, "enrich.RData", sep = "_"))
