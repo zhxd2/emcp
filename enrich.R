@@ -119,7 +119,7 @@ if(nrow(ekp_results) > 5){
 id.map <- select(org.My.eg.db, keys = names(geneList), columns = "Ko")
 gene.ko <- mol.sum(mol.data = geneList, id.map = id.map)
  
-sig.pathway <- as.character(filter(ekp_results, p.adjust < 0.05)$ID)
+sig.pathway <- as.character(filter(ekp_results, p.adjust < argv$enrich_qvalue)$ID)
  
 work_dir <- getwd()
 pathview_dir <- paste(out_prefix, 'pathwiew', sep = "_")
